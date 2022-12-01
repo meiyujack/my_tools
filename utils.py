@@ -1,7 +1,7 @@
 # @Author  : meiyujack
 # @Version : v0.31
 # @Time    : 2021/8/26 16:12
-import ctypes
+import json
 import time
 import os
 import datetime
@@ -70,7 +70,7 @@ def open_file_as_txt(path, encoding='utf-8'):
     读取文本文件，不做任何操作
     :param path: 文本文件路径
     :param encoding:  默认万国码
-    :return: 列表
+    :return: str
     """
     with open(path, encoding=encoding) as f:
         result = f.read()
@@ -129,3 +129,7 @@ def get_random_number():
     :return: 返回字符串
     """
     return str(random.random())[2:12]
+
+
+def read_json_file(path):
+    return json.loads(open_file_as_txt(path))
