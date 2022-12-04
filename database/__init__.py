@@ -55,12 +55,13 @@ class Database:
             db.rollback()
             return f"Error: {e}"
 
-    def upsert(self, db, table, data):
+    def upsert(self, db, table, data,constraint:int=None):
         """
         insert or update data into table in database.
         @param db: connection, connection of database.
         @param table: str, table's name.
         @param data: dict, data's form.
+        @param constraint: int, key's index of data, alternative, especially for sqlite3's update sentense.
         @return: str, message if error.
         """
         cursor = db.cursor()
@@ -69,12 +70,13 @@ class Database:
         update = ','.join([f" {key}=?" for key in data])
         try:
             if self.server == sqlite3:
-                sql = f'INSERT INTO {table}({keys}) VALUES({values}) ON CONFLICT({keys}) DO UPDATE SET'
+                sql = f'INSERT INTO {table}({keys}) VALUES({values}) ON CONFLICT({list(data.keys())[constraint]}) DO UPDATE SET'
             else:
-                sql = f'INSERT INTO {table}({keys}) VALUES({values}) ON DUPLICATE KEY UPDATE'
+                sql = f'INSERT INTO {table} ({keys}) VALUES ({values}) ON DUPLICATE KEY UPDATE'
             sql += update
+            print(sql)
             if cursor.execute(sql, tuple(data.values()) * 2):
                 db.commit()
         except self.server.Error as e:
             db.rollback()
-            return f"错误: {e}"
+            return f"Error: {e}"
