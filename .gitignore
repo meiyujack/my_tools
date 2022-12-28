@@ -3,3 +3,4 @@ my_services.py
 
 # ignore ALL files in PyCharm's temp cache directory
 __pycache__
+.idea

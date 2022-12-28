@@ -22,7 +22,7 @@ class Database:
         @return: db's connection
         """
         try:
-            if self.server == sqlite3:
+            if self.server == "sqlite":
                 db = sqlite3.connect(self.file_address)
                 return db
             db = self.server.connect(
