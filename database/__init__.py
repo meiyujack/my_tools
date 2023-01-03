@@ -69,7 +69,7 @@ class Database:
         values = ','.join(['?'] * len(data))
         update = ','.join([f" {key}=?" for key in data])
         try:
-            if self.server == sqlite3:
+            if self.server == "sqlite":
                 sql = f'INSERT INTO {table}({keys}) VALUES({values}) ON CONFLICT({list(data.keys())[constraint]}) DO UPDATE SET'
             else:
                 sql = f'INSERT INTO {table} ({keys}) VALUES ({values}) ON DUPLICATE KEY UPDATE'
