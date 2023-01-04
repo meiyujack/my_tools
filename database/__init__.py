@@ -25,6 +25,7 @@ class Database:
         try:
             if self.server == "sqlite":
                 self.conn = sqlite3.connect(self.file_address)
+                return None
             self.conn = self.server.connect(
                 user=self.user,
                 password=self.password,
@@ -32,6 +33,7 @@ class Database:
                 port=self.port,
                 database=self.database
             )
+            return None
         except self.server.Error as e:
             return e
 
