@@ -15,6 +15,7 @@ class Database:
         self.database = kwargs.get('database')
         self.user = kwargs.get('user')
         self.password = kwargs.get('password')
+        self.conn = None
 
     def connect_db(self):
         """
@@ -23,48 +24,44 @@ class Database:
         """
         try:
             if self.server == "sqlite":
-                db = sqlite3.connect(self.file_address)
-                return db
-            db = self.server.connect(
+                self.conn = sqlite3.connect(self.file_address)
+            self.conn = self.server.connect(
                 user=self.user,
                 password=self.password,
                 host=self.host,
                 port=self.port,
                 database=self.database
             )
-            return db
         except self.server.Error as e:
             return e
 
-    def execute_db(self, db, sql):
+    def execute_db(self, sql):
         """
         Just execute command. especially in select sentence.
-        @param db: connection, connection of database.
         @param sql: str, sql command.
         @return: rows if execute select sentence or error message.
         """
-        cursor = db.cursor()
+        cursor = self.conn.cursor()
         try:
             cursor.execute(sql)
             rows = cursor.fetchall()
             if rows:
                 return rows
             else:
-                db.commit()
+                self.conn.commit()
         except self.server.Error as e:
-            db.rollback()
+            self.conn.rollback()
             return f"Error: {e}"
 
-    def upsert(self, db, table, data,constraint:int=None):
+    def upsert(self, table, data, constraint: int = None):
         """
         insert or update data into table in database.
-        @param db: connection, connection of database.
         @param table: str, table's name.
         @param data: dict, data's form.
         @param constraint: int, key's index of data, alternative, especially for sqlite3's update sentense.
         @return: str, message if error.
         """
-        cursor = db.cursor()
+        cursor = self.conn.cursor()
         keys = ','.join(data.keys())
         values = ','.join(['?'] * len(data))
         update = ','.join([f" {key}=?" for key in data])
@@ -75,8 +72,8 @@ class Database:
                 sql = f'INSERT INTO {table} ({keys}) VALUES ({values}) ON DUPLICATE KEY UPDATE'
             sql += update
             print(sql)
-            if cursor.execute(sql, tuple(data.values()) * 2):
-                db.commit()
+            if self.conn.execute(sql, tuple(data.values()) * 2):
+                self.conn.commit()
         except self.server.Error as e:
-            db.rollback()
+            self.conn.rollback()
             return f"Error: {e}"
