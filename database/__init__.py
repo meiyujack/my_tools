@@ -20,7 +20,7 @@ class Database:
     def connect_db(self):
         """
         Connect to the database.
-        @return: db's connection
+        @return: None, except for error message.
         """
         try:
             if self.server == "sqlite":
@@ -60,8 +60,8 @@ class Database:
         insert or update data into table in database.
         @param table: str, table's name.
         @param data: dict, data's form.
-        @param constraint: int, key's index of data, alternative, especially for sqlite3's update sentense.
-        @return: str, message if error.
+        @param constraint: int, primary key's index of data, alternative, especially for sqlite3's update sentence.
+        @return: None, except for error message.
         """
         cursor = self.conn.cursor()
         keys = ','.join(data.keys())
