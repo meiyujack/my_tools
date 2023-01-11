@@ -37,20 +37,31 @@ class Database:
         except self.server.Error as e:
             return e
 
-    def execute_db(self, sql):
+    def select_db(self, table, get='*', prep=None, **condition):
         """
-        Just execute command. especially in select sentence.
-        @param sql: str, sql command.
+        Just execute "select" sentence.
+        @param table: str, table's name.
+        @param get: str, default: *, what column or property you want to get.
+        @param prep: str, default:None, prep. "and" or "or(secondly)" in WHERE clause. At most two conditions now.
+        @param condition: **condition, according to what condition you want to find.
         @return: rows if execute select sentence or error message.
         """
         cursor = self.conn.cursor()
+        sql = f"SELECT {get} FROM {table}"
+        where = f" WHERE {','.join(condition.keys())}={','.join(['?'])}"
+        if len(condition) == 1:
+            sql += where
+        else:
+            where = f' {prep} '.join(
+                [f"{''.join(m.keys())}={''.join(['?'])}" for m in [{i: j} for i, j in condition.items()]])
+            sql += ' WHERE ' + where
         try:
-            cursor.execute(sql)
+            cursor.execute(sql, tuple(condition.values()))
             rows = cursor.fetchall()
             if rows:
                 return rows
-            else:
-                self.conn.commit()
+            # else:
+            #     self.conn.commit()
         except self.server.Error as e:
             self.conn.rollback()
             return f"Error: {e}"
