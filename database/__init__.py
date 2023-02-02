@@ -10,8 +10,7 @@ class Database:
         if mariadb, host={host}, user={user}, etc.
         """
         self.server = server
-        for k, v in kwargs.items():
-            self.k = v
+        self.basic = kwargs
 
     def connect_db(self):
         """
@@ -20,13 +19,13 @@ class Database:
         """
         try:
             if self.server == "sqlite":
-                return sqlite3.connect(self.file_address)
+                return sqlite3.connect(self.basic['file_address'])
             return self.server.connect(
-                user=self.user,
-                password=self.password,
-                host=self.host,
-                port=self.port,
-                database=self.database
+                user=self.basic['user'],
+                password=self.basic['password'],
+                host=self.basic['host'],
+                port=self.basic['port'],
+                database=self.basic['database']
             )
         except self.server.Error as e:
             return e
@@ -36,7 +35,7 @@ class Database:
         Initialize table schema structure.
         @param conn: database's Connection.
         """
-        with open(self.sql_address, mode="r") as file:
+        with open(self.basic["sql_address"], mode="r") as file:
             conn.cursor().executescript(file.read())
             conn.commit()
             print("Initialize database completed.")
