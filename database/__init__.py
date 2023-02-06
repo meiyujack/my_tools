@@ -1,11 +1,8 @@
-import sqlite3
-
-
 class Database:
     def __init__(self, server, **kwargs):
         """
         Initialize basic information about current database.
-        @param server: database name, like mariadb, sqlite3, etc.
+        @param server: database name, like mariadb, sqlite, etc.
         @param kwargs: key=value. if sqlite,file_address and sql_address in case want to reconstruct table;
         if mariadb, host={host}, user={user}, etc.
         """
@@ -18,8 +15,8 @@ class Database:
         @return: None, except for error message.
         """
         try:
-            if self.server == "sqlite":
-                return sqlite3.connect(self.basic['file_address'])
+            if self.server == "aiosqlite":
+                await self.server.connect(self.basic['file_address'])
             return self.server.connect(
                 user=self.basic['user'],
                 password=self.basic['password'],
