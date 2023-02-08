@@ -1,3 +1,5 @@
+import aiosqlite
+
 from . import Database
 
 
@@ -14,10 +16,12 @@ class AsyncSqlite(Database):
         """
         Initialize table schema structure.
         """
-        with open(self.basic["sql_address"], mode="r") as file:
-            await self.conn.cursor().executescript(file.read())
-            await self.conn.commit()
-            print("Initialize database completed.")
+        async with aiosqlite.connect(self.basic.get("file_address")) as conn:
+            with open(self.basic["sql_address"], mode="r") as file:
+                conn.row_factory = aiosqlite.Row
+                await conn.executescript(file.read())
+                await conn.commit()
+                print("Initialize database completed!")
 
     async def select_db(self, table, get='*', prep=None, **condition):
         await self.connect_db()
