@@ -48,6 +48,7 @@ class AsyncSqlite(Database):
         @param constraint: int, primary key's index of data, alternative, especially for sqlite3's update sentence.
         @return: None, except for error message.
         """
+        await self.connect_db()
         keys = ','.join(data.keys())
         values = ','.join(['?'] * len(data))
         update = ','.join([f" {key}=?" for key in data])
