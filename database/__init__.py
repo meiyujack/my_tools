@@ -50,13 +50,14 @@ class Database:
         @return: rows if execute select sentence or error message.
         """
         sql = f"SELECT {get} FROM {table}"
-        where = f" WHERE {','.join(condition.keys())}={','.join(['?'])}"
-        if len(condition) == 1:
-            sql += where
-        else:
-            where = f' {prep} '.join(
-                [f"{''.join(m.keys())}={''.join(['?'])}" for m in [{i: j} for i, j in condition.items()]])
-            sql += ' WHERE ' + where
+        if condition:
+            where = f" WHERE {','.join(condition.keys())}={','.join(['?'])}"
+            if len(condition) == 1:
+                sql += where
+            else:
+                where = f' {prep} '.join(
+                    [f"{''.join(m.keys())}={''.join(['?'])}" for m in [{i: j} for i, j in condition.items()]])
+                sql += ' WHERE ' + where
         try:
             cursor=self.conn.execute(sql, tuple(condition.values()))
             rows = cursor.fetchall()

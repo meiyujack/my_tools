@@ -3,26 +3,26 @@ from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 
 class WebSecurity:
 
-    def __init__(self, info: dict, secret_key, max_age):
-        self.info = info
+    def __init__(self, secret_key, max_age):
         self.serializer = URLSafeTimedSerializer(secret_key)
         self.max_age = max_age
 
-    def generate_token(self):
-        token = self.serializer.dumps(self.info)
+    def generate_token(self, info):
+        token = self.serializer.dumps(info)
         return token
 
-    def get_info_by_token(self, token):
+    def get_info_by_token(self, token, key):
         """
-        加密内容字典长度为1直接返回其内容（value），否则返回元组((),()...)
-        :param token: 待解析内容
-        :return: str|tuple|None
-        """
+       获取加密内容
+       :param token: 待解析内容
+       :param key: 待解析内容的key
+       :return: Any|None
+       """
         try:
             info = self.serializer.loads(token, max_age=self.max_age)
-        except BadSignature or SignatureExpired:
-            return None
-        return info["".join(self.info.keys())] if len(self.info) == 1 else tuple(self.info.items())
+        except BadSignature or SignatureExpired as ex:
+            return ex
+        return info[key]
 
     def check_token(self, token):
         try:
