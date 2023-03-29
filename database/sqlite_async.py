@@ -46,7 +46,7 @@ class AsyncSqlite(Database):
         insert or update data into table in database.
         @param table: str, table's name.
         @param data: dict, data's form.
-        @param constraint: int, primary key's index of data, alternative, especially for sqlite3's update sentence.
+        @param constraint: int, primary key's index of data, alternative. sqlite3 NEEDED.
         @return: None, except for error message.
         """
         await self.connect_db()

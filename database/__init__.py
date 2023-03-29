@@ -71,23 +71,30 @@ class Database:
 
     def upsert(self, table, data, constraint: int = None):
         """
-        insert or update data into table in database.
+        insert or update data into table in database
         @param table: str, table's name.
         @param data: dict, data's form.
-        @param constraint: int, primary key's index of data, alternative, especially for sqlite3's update sentence.
+        @param constraint: int, primary key's index of data, alternative. sqlite3 NEEDED.
         @return: None, except for error message.
         """
         keys = ','.join(data.keys())
         values = ','.join(['?'] * len(data))
         update = ','.join([f" {key}=?" for key in data])
         try:
-            if self.server == "sqlite":
+            if self.server == sqlite3:
                 sql = f'INSERT INTO {table}({keys}) VALUES({values}) ON CONFLICT({list(data.keys())[constraint]}) DO UPDATE SET'
             else:
                 sql = f'INSERT INTO {table} ({keys}) VALUES ({values}) ON DUPLICATE KEY UPDATE'
             sql += update
+            print(sql)
             if self.conn.execute(sql, tuple(data.values()) * 2):
                 self.conn.commit()
         except self.server.Error as e:
             self.conn.rollback()
             return f"Error: {e}"
+
+if __name__ == '__main__':
+
+    mydb=Database(sqlite3,file_address='/home/mei/project/ledger/user.db')
+    mydb.connect_db()
+    mydb.upsert('user',{'user_id':'123','username':'mei','password':'12345'},0)
