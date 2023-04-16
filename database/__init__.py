@@ -59,7 +59,7 @@ class Database:
                     [f"{''.join(m.keys())}={''.join(['?'])}" for m in [{i: j} for i, j in condition.items()]])
                 sql += ' WHERE ' + where
         try:
-            cursor=self.conn.execute(sql, tuple(condition.values()))
+            cursor = self.conn.execute(sql, tuple(condition.values()))
             rows = cursor.fetchall()
             if rows:
                 return rows
@@ -92,9 +92,3 @@ class Database:
         except self.server.Error as e:
             self.conn.rollback()
             return f"Error: {e}"
-
-if __name__ == '__main__':
-
-    mydb=Database(sqlite3,file_address='/home/mei/project/ledger/user.db')
-    mydb.connect_db()
-    mydb.upsert('user',{'user_id':'123','username':'mei','password':'12345'},0)

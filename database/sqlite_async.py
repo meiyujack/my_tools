@@ -62,3 +62,12 @@ class AsyncSqlite(Database):
         except self.server.Error as ex:
             await self.conn.rollback()
             return f"Error: {ex}"
+
+    async def just_exe(self, sql):
+        """Just execute sql command. Like more than one table query"""
+
+        try:
+            async with self.conn.execute(sql) as cursor:
+                return await cursor.fetchall()
+        except self.server.Error as ex:
+            return f"Error:{ex}"
