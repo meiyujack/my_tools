@@ -81,7 +81,7 @@ class Database:
             self.conn.rollback()
             return f"Error:{ex}"
 
-    def update(self,table,data,**contition):
+    def update(self,table,data,**condition):
         self.connect_db()
         s=""
         for k,v in data.items():
