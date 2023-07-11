@@ -69,26 +69,53 @@ class Database:
             self.conn.rollback()
             return f"Error: {e}"
 
-    def upsert(self, table, data, constraint: int = None):
-        """
-        insert or update data into table in database
-        @param table: str, table's name.
-        @param data: dict, data's form.
-        @param constraint: int, primary key's index of data, alternative. sqlite3 NEEDED.
-        @return: None, except for error message.
-        """
+    def insert(self,table,data):
+        self.connect_db()
         keys = ','.join(data.keys())
         values = ','.join(['?'] * len(data))
-        update = ','.join([f" {key}=?" for key in data])
         try:
-            if self.server == sqlite3:
-                sql = f'INSERT INTO {table}({keys}) VALUES({values}) ON CONFLICT({list(data.keys())[constraint]}) DO UPDATE SET'
-            else:
-                sql = f'INSERT INTO {table} ({keys}) VALUES ({values}) ON DUPLICATE KEY UPDATE'
-            sql += update
-            print(sql)
-            if self.conn.execute(sql, tuple(data.values()) * 2):
+            sql=f"INSERT INTO {table}({keys}) VALUES({values});"
+            if self.conn.execute(sql, tuple(data.value())):
                 self.conn.commit()
-        except self.server.Error as e:
+        except self.server.Error as ex:
             self.conn.rollback()
-            return f"Error: {e}"
+            return f"Error:{ex}"
+
+    def update(self,table,data,**contition):
+        self.connect_db()
+        s=""
+        for k,v in data.items():
+            s+=f"{k}='{v}',"
+        s=s[:-1]
+        try:
+            sql=f"UPDATE {table} SET {s}"
+            where=f" WHERE {','.join(condition.keys())}={','.join(['?'])};"
+            if self.conn.execute(sql,tuple(condition.values())):
+                self.conn.commit()
+        except self.server.Error as ex:
+            self.conn.rollback()
+            return f"Error:{ex}"
+
+    # def upsert(self, table, data, constraint: int = None):
+    #     """
+    #     insert or update data into table in database
+    #     @param table: str, table's name.
+    #     @param data: dict, data's form.
+    #     @param constraint: int, primary key's index of data, alternative. sqlite3 NEEDED.
+    #     @return: None, except for error message.
+    #     """
+    #     keys = ','.join(data.keys())
+    #     values = ','.join(['?'] * len(data))
+    #     update = ','.join([f" {key}=?" for key in data])
+    #     try:
+    #         if self.server == sqlite3:
+    #             sql = f'INSERT INTO {table}({keys}) VALUES({values}) ON CONFLICT({list(data.keys())[constraint]}) DO UPDATE SET'
+    #         else:
+    #             sql = f'INSERT INTO {table} ({keys}) VALUES ({values}) ON DUPLICATE KEY UPDATE'
+    #         sql += update
+    #         print(sql)
+    #         if self.conn.execute(sql, tuple(data.values()) * 2):
+    #             self.conn.commit()
+    #     except self.server.Error as e:
+    #         self.conn.rollback()
+    #         return f"Error: {e}"

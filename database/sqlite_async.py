@@ -41,27 +41,55 @@ class AsyncSqlite(Database):
             await self.conn.rollback()
             return f"Error:{ex}"
 
-    async def upsert(self, table, data, constraint: int = None):
-        """
-        insert or update data into table in database.
-        @param table: str, table's name.
-        @param data: dict, data's form.
-        @param constraint: int, primary key's index of data, alternative. sqlite3 NEEDED.
-        @return: None, except for error message.
-        """
+async def insert(self, table, data):
         await self.connect_db()
         keys = ','.join(data.keys())
         values = ','.join(['?'] * len(data))
-        update = ','.join([f" {key}=?" for key in data])
         try:
-            sql = f'INSERT INTO {table}({keys}) VALUES({values}) ON CONFLICT({list(data.keys())[constraint]}) DO UPDATE SET'
-            sql += update
-
-            if await self.conn.execute(sql, tuple(data.values()) * 2):
+            sql = f"INSERT INTO {table}({keys}) VALUES({values});"
+            if await self.conn.execute(sql, tuple(data.value())):
                 await self.conn.commit()
         except self.server.Error as ex:
             await self.conn.rollback()
-            return f"Error: {ex}"
+            return f"Error:{ex}"
+
+    async def update(self, table, data, **contition):
+        await self.connect_db()
+        s=""
+        for k,v in data.items():
+            s+=f"{k}='{v}',"
+        s=s[:-1]
+        try:
+            sql = f"UPDATE {table} SET {s}"
+            where = f" WHERE {','.join(condition.keys())}={','.join(['?'])};"
+            sql+=where
+            if await self.conn.execute(sql, tuple(condition.values())):
+                await self.conn.commit()
+        except self.server.Error as ex:
+            await self.conn.rollback()
+            return f"Error:{ex}"
+
+    # async def upsert(self, table, data, constraint: int = None):
+    #     """
+    #     insert or update data into table in database.
+    #     @param table: str, table's name.
+    #     @param data: dict, data's form.
+    #     @param constraint: int, primary key's index of data, alternative. sqlite3 NEEDED.
+    #     @return: None, except for error message.
+    #     """
+    #     await self.connect_db()
+    #     keys = ','.join(data.keys())
+    #     values = ','.join(['?'] * len(data))
+    #     update = ','.join([f" {key}=?" for key in data])
+    #     try:
+    #         sql = f'INSERT INTO {table}({keys}) VALUES({values}) ON CONFLICT({list(data.keys())[constraint]}) DO UPDATE SET'
+    #         sql += update
+
+    #         if await self.conn.execute(sql, tuple(data.values()) * 2):
+                await self.conn.commit()
+    #     except self.server.Error as ex:
+    #         await self.conn.rollback()
+    #         return f"Error: {ex}"
 
     async def just_exe(self, sql):
         """Just execute sql command. Like more than one table query"""
