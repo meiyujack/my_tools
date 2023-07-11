@@ -75,7 +75,7 @@ class Database:
         values = ','.join(['?'] * len(data))
         try:
             sql=f"INSERT INTO {table}({keys}) VALUES({values});"
-            if self.conn.execute(sql, tuple(data.value())):
+            if self.conn.execute(sql, tuple(data.values())):
                 self.conn.commit()
         except self.server.Error as ex:
             self.conn.rollback()
