@@ -87,13 +87,33 @@ class Database:
         for k,v in data.items():
             s+=f"{k}='{v}',"
         s=s[:-1]
+        sql=f"UPDATE {table} SET {s}"
+        where=f" WHERE {','.join(condition.keys())}={','.join(['?'])};"
+        sql+=where
         try:
-            sql=f"UPDATE {table} SET {s}"
-            where=f" WHERE {','.join(condition.keys())}={','.join(['?'])};"
             if self.conn.execute(sql,tuple(condition.values())):
                 self.conn.commit()
         except self.server.Error as ex:
             self.conn.rollback()
+            return f"Error:{ex}"
+
+    def delete(self,table,**condition):
+        self.connect_db()
+        sql=f"DELETE FROM {table}"
+        where=f" WHERE {','.join(condition.keys())}={','.join(['?'])};"
+        sql+=where
+        try:
+            if self.conn.execute(sql,tuple(condition.values())):
+                self.conn.commit()
+        except self.server.Error as ex:
+            self.conn.rollback()
+            return f"Error:{ex}"
+
+    def just_exe(self,sql):
+        try:
+            with self.conn.execute(sql) as cursor:
+                return cursor.fetchall()
+        except self.server.Error as ex:
             return f"Error:{ex}"
 
     # def upsert(self, table, data, constraint: int = None):

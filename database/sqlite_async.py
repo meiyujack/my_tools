@@ -41,6 +41,7 @@ class AsyncSqlite(Database):
             await self.conn.rollback()
             return f"Error:{ex}"
 
+
 async def insert(self, table, data):
         await self.connect_db()
         keys = ','.join(data.keys())
@@ -53,21 +54,35 @@ async def insert(self, table, data):
             await self.conn.rollback()
             return f"Error:{ex}"
 
-    async def update(self, table, data, **contition):
-        await self.connect_db()
-        s=""
-        for k,v in data.items():
-            s+=f"{k}='{v}',"
-        s=s[:-1]
-        try:
-            sql = f"UPDATE {table} SET {s}"
-            where = f" WHERE {','.join(condition.keys())}={','.join(['?'])};"
-            sql+=where
-            if await self.conn.execute(sql, tuple(condition.values())):
-                await self.conn.commit()
-        except self.server.Error as ex:
-            await self.conn.rollback()
-            return f"Error:{ex}"
+
+async def update(self, table, data, **condition):
+    await self.connect_db()
+    s=""
+    for k,v in data.items():
+        s+=f"{k}='{v}',"
+    s=s[:-1]
+    try:
+        sql = f"UPDATE {table} SET {s}"
+        where = f" WHERE {','.join(condition.keys())}={','.join(['?'])};"
+        sql+=where
+        if await self.conn.execute(sql, tuple(condition.values())):
+            await self.conn.commit()
+    except self.server.Error as ex:
+        await self.conn.rollback()
+        return f"Error:{ex}"
+
+
+async def delete(self,table,**condition):
+    await self.connect_db()
+    sql = f"DELETE FROM {table}"
+    where = f" WHERE {','.join(condition.keys())}={','.join(['?'])};"
+    sql += where
+    try:
+        if await self.conn.execute(sql,tuple(condition.values())):
+            await self.conn.commit()
+    except self.server.Error as ex:
+        await self.conn.rollback()
+        return f"Error:{ex}"
 
     # async def upsert(self, table, data, constraint: int = None):
     #     """
@@ -86,7 +101,7 @@ async def insert(self, table, data):
     #         sql += update
 
     #         if await self.conn.execute(sql, tuple(data.values()) * 2):
-                await self.conn.commit()
+    #            await self.conn.commit()
     #     except self.server.Error as ex:
     #         await self.conn.rollback()
     #         return f"Error: {ex}"
