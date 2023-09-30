@@ -23,7 +23,7 @@ class AsyncSqlite(Database):
                 await conn.commit()
                 print("Initialize database completed!")
 
-    async def select_db(self, table, get='*', prep=None, **condition):
+    async def select_db(self, table, get="*", prep=None, **condition):
         await self.connect_db()
         sql = f"SELECT {get} FROM {table}"
         if condition:
@@ -31,9 +31,13 @@ class AsyncSqlite(Database):
             if len(condition) == 1:
                 sql += where
             else:
-                where = f' {prep} '.join(
-                    [f"{''.join(m.keys())}={''.join(['?'])}" for m in [{i: j} for i, j in condition.items()]])
-                sql += ' WHERE ' + where
+                where = f" {prep} ".join(
+                    [
+                        f"{''.join(m.keys())}={''.join(['?'])}"
+                        for m in [{i: j} for i, j in condition.items()]
+                    ]
+                )
+                sql += " WHERE " + where
         try:
             async with self.conn.execute(sql, tuple(condition.values())) as cursor:
                 return await cursor.fetchall()
@@ -43,28 +47,28 @@ class AsyncSqlite(Database):
 
 
 async def insert(self, table, data):
-        await self.connect_db()
-        keys = ','.join(data.keys())
-        values = ','.join(['?'] * len(data))
-        try:
-            sql = f"INSERT INTO {table}({keys}) VALUES({values});"
-            if await self.conn.execute(sql, tuple(data.value())):
-                await self.conn.commit()
-        except self.server.Error as ex:
-            await self.conn.rollback()
-            return f"Error:{ex}"
+    await self.connect_db()
+    keys = ",".join(data.keys())
+    values = ",".join(["?"] * len(data))
+    try:
+        sql = f"INSERT INTO {table}({keys}) VALUES({values});"
+        if await self.conn.execute(sql, tuple(data.values())):
+            await self.conn.commit()
+    except self.server.Error as ex:
+        await self.conn.rollback()
+        return f"Error:{ex}"
 
 
 async def update(self, table, data, **condition):
     await self.connect_db()
-    s=""
-    for k,v in data.items():
-        s+=f"{k}='{v}',"
-    s=s[:-1]
+    s = ""
+    for k, v in data.items():
+        s += f"{k}='{v}',"
+    s = s[:-1]
     try:
         sql = f"UPDATE {table} SET {s}"
         where = f" WHERE {','.join(condition.keys())}={','.join(['?'])};"
-        sql+=where
+        sql += where
         if await self.conn.execute(sql, tuple(condition.values())):
             await self.conn.commit()
     except self.server.Error as ex:
@@ -72,13 +76,13 @@ async def update(self, table, data, **condition):
         return f"Error:{ex}"
 
 
-async def delete(self,table,**condition):
+async def delete(self, table, **condition):
     await self.connect_db()
     sql = f"DELETE FROM {table}"
     where = f" WHERE {','.join(condition.keys())}={','.join(['?'])};"
     sql += where
     try:
-        if await self.conn.execute(sql,tuple(condition.values())):
+        if await self.conn.execute(sql, tuple(condition.values())):
             await self.conn.commit()
     except self.server.Error as ex:
         await self.conn.rollback()
