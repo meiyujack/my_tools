@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <form action="">
+        <input type="file" name="model" id="excel">
+        <input type="button" value="上传" id="sure">
+    </form>
+    <script>
+        var fileInput = document.getElementById("excel");
+        var sure = document.getElementById("sure");
+
+        sure.addEventListener("click", function () {
+            var formData = new FormData();
+            formData.append("model", fileInput.files[0]);
+            var request = new XMLHttpRequest();
+            request.open("POST", "/model");
+            request.send(formData);
+        });
+    </script>
+</body>
+
+</html>
