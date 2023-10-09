@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}欢迎来到填表网站{% endblock %}
+{% block head %}
+{{ super() }}
+<style>
+    div {
+        float: left;
+        padding: 40px;
+    }
+
+    a {
+        width: 640px;
+        height: 480px;
+        font-size: xx-large;
+        border-radius: 2%;
+        border: 2px solid black;
+        text-decoration: none;
+        background: #69c;
+        color: #fff;
+        padding: 5px 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<span hidden>{{flag}}</span>
+<div id="upload"><a href="/upload">上传模板</a></div>
+<div id="write"><a href="/write">填写表格</a></div>
+<div id="read" hidden><a href="/read">读取表格</a></div>
+<div id="download" hidden><a href="/download">下载表格</a></div>
+<script>
+    if (document.querySelector("span").innerHTML == 'True') {
+        document.getElementById("read").hidden = false;
+        document.getElementById("download").hidden = false;
+    }
+</script>
+{% endblock %}

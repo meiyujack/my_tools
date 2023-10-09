@@ -1,29 +1,35 @@
-<!DOCTYPE html>
-<html lang="zh">
+{% extends "base.html" %}
+{% block title %}上传模板{% endblock %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-
-<body>
-    <form action="">
-        <input type="file" name="model" id="excel">
-        <input type="button" value="上传" id="sure">
-    </form>
-    <script>
-        var fileInput = document.getElementById("excel");
-        var sure = document.getElementById("sure");
-
-        sure.addEventListener("click", function () {
-            var formData = new FormData();
+{% block content %}
+<form enctype="multipart/form-data" method="post" name="file">
+    <input type="file" name="model" id="excel" required>
+    <input type="submit" value="上传" id="sure">
+</form>
+<script>
+    var form = document.forms.namedItem("file");
+    form.addEventListener(
+        "submit",
+        function (ev) {
+            var fileInput = document.getElementById("excel");
+            formData = new FormData(form);
             formData.append("model", fileInput.files[0]);
             var request = new XMLHttpRequest();
-            request.open("POST", "/model");
+            request.open("POST", "/model", true);
+            request.onload = function () {
+                if (request.status == 200) {
+                    alert("已成功上传模板");
+                    window.location.href = "/write";
+                }
+                else {
+                    result.status + "上传文件发生错误。<br/>";
+                }
+            };
             request.send(formData);
-        });
-    </script>
-</body>
+            ev.preventDefault();
+        },
+        false,
+    );
 
-</html>
+</script>
+{% endblock %}

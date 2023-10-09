@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% block head %}
+    <title>{% block title %}{% endblock %}</title>
+    <style>
+        #message {
+            color: orange;
+            text-align: center;
+        }
+
+        #message ul {
+            list-style: none;
+        }
+    </style>
+    {% endblock %}
+</head>
+
+<body>
+    <div id="message">
+        <ul>
+            {% for message in get_flashed_messages() %}
+            <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div id="content">{% block content %}{% endblock %}</div>
+</body>
+
+</html>
