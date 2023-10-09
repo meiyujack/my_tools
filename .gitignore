@@ -4,3 +4,6 @@ my_services.py
 # ignore ALL files in PyCharm's temp cache directory
 __pycache__
 .idea
+
+# ignore ALL files in VSCode's temp cache directory or settings
+.vscode
