@@ -2,5 +2,19 @@
 {% block title %}读取表格{% endblock %}
 
 {% block content %}
+<table id="table" cellpadding="10px">
 
+    <tr name="th">
+        {% for h in th %}
+        <th>{{ h }}</th>
+        {% endfor %}
+    </tr>
+    {% for row in table %}
+    <tr>
+        {% for c in row %}
+        <td>{{ c }}</td>
+        {% endfor %}
+    </tr>
+    {% endfor %}
+</table>
 {% endblock %}

@@ -36,6 +36,17 @@ class Excelize:
             self.sheet[end_letter + str(rows + 1)] = data[c]
         self.workbook.save(self.file_address)
 
+    def read_data(self):
+        rows, cols, start_letter = self.get_basic()
+        table = []
+        for r in range(2, rows + 1):
+            row = []
+            for c in range(cols):
+                end_letter = chr(ord(start_letter) + c)
+                row.append(self.sheet[end_letter + str(r)].value)
+            table.append(row)
+        return table
+
 
 class InputFile(Schema):
     model = File(required=True)
@@ -96,10 +107,5 @@ def write_post(form_data):
 
 @my_excel.get("/read")
 def read_show():
-    return render_template("read.html")
-
-
-@my_excel.post("/read")
-def read():
     excel = Excelize("upload/model.xlsx")
-    excel.get_basic()
+    return render_template("read.html", th=excel.get_th(), table=excel.read_data())
