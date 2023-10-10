@@ -1,7 +1,7 @@
 from openpyxl import load_workbook, Workbook
 from apiflask import APIFlask, Schema
 from apiflask.fields import String, File
-from flask import render_template, redirect, url_for, flash
+from flask import render_template, redirect, url_for, flash, send_file
 
 import os
 
@@ -109,3 +109,8 @@ def write_post(form_data):
 def read_show():
     excel = Excelize("upload/model.xlsx")
     return render_template("read.html", th=excel.get_th(), table=excel.read_data())
+
+
+@my_excel.get("/download")
+def download():
+    return send_file(path_or_file="upload/model.xlsx", download_name="工作簿.xlsx")
