@@ -15,14 +15,17 @@ from selenium.common.exceptions import TimeoutException
 def start_chrome(headless=False):
     chrome_options = ChromeOptions()
     if headless is True:
-        chrome_options.add_argument('--headless')  # 无头模式
-    chrome_options.add_argument('--no-sandbox')
+        chrome_options.add_argument("--headless")  # 无头模式
+    chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")  # 去沙盒
     # chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--disable-features=NetworkService")
     chrome_options.add_argument("--window-size=1920x1080")
     chrome_options.add_argument("--disable-features=VizDisplayCompositor")
-    chrome = webdriver.Chrome(chrome_options=chrome_options)
+    chrome_options.add_argument("--ignore-certificate-errors")
+    chrome_options.add_argument("--ignore-ssl-errors")
+    chrome_options.add_argument("--ignore-net-errors")
+    chrome = webdriver.Chrome(options=chrome_options)
     return chrome
 
 
