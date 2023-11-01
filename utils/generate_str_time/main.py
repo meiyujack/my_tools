@@ -13,4 +13,11 @@ def get_now_time(condition):
 
 def transform_int_time(int_time):
     """把秒针形式的时间转换成标准日期格式"""
-    return datetime.datetime.strptime(time.ctime(int_time), '%a %b  %d %H:%M:%S %Y').isoformat().replace('T', ' ')
+    return datetime.datetime.strptime(
+        time.ctime(int_time),
+        '%a %b  %d %H:%M:%S %Y').isoformat().replace('T', ' ')
+
+
+def transform_str_time(str_time):
+    """把标准日期格式的时间转换成秒针形式"""
+    return int(datetime.datetime.strptime(str_time, '%Y-%m-%d').timestamp())
