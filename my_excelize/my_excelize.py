@@ -7,6 +7,7 @@ import os
 
 
 class Excelize:
+
     def __init__(self, file_address="upload/model.xlsx", sheet_name=None):
         if os.path.exists(file_address):
             self.file_address = file_address
@@ -17,9 +18,8 @@ class Excelize:
             wb.save("upload/model.xlsx")
             self.file_address = "upload/model.xlsx"
         self.workbook = load_workbook(self.file_address)
-        self.sheet = (
-            self.workbook.active if not sheet_name else self.workbook[sheet_name]
-        )
+        self.sheet = (self.workbook.active
+                      if not sheet_name else self.workbook[sheet_name])
 
     def get_basic(self):
         rows = self.sheet.max_row
@@ -74,7 +74,8 @@ def upload():
 def upload_model(files_data):
     with open("upload/model.xlsx", "wb") as f:
         f.write(files_data["model"].read())
-    return ""
+    flash("模板上传成功！")
+    return redirect(url_for("write_show"))
 
 
 @my_excel.get("/write")
@@ -102,15 +103,22 @@ def write_post(form_data):
         content.append(v)
 
     excel.write_data(content)
-    return "数据写入成功！"
+    flash("数据写入成功！")
+    return redirect(url_for("read_show"))
 
 
 @my_excel.get("/read")
 def read_show():
     excel = Excelize("upload/model.xlsx")
-    return render_template("read.html", th=excel.get_th(), table=excel.read_data())
+    if excel.get_basic()[0] == 1:
+        flash("暂无数据，请写入~")
+        return redirect(url_for("write_post"))
+    return render_template("read.html",
+                           th=excel.get_th(),
+                           table=excel.read_data())
 
 
 @my_excel.get("/download")
 def download():
-    return send_file(path_or_file="upload/model.xlsx", download_name="工作簿.xlsx")
+    return send_file(path_or_file="upload/model.xlsx",
+                     download_name="工作簿.xlsx")

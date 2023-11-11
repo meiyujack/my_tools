@@ -1,7 +1,17 @@
 {% extends 'base.html' %}
 {% block title %}读取表格{% endblock %}
+{% block head %}
+{{ super() }}
+<style>
+    #nav a{
+        padding-left: 40px;
+        float: right;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
+<div id="nav"><a href="{{url_for('index')}}">首页</a><a href="{{url_for('write_post')}}">写入</a></div>
 <table id="table" cellpadding="10px">
 
     <tr name="th">

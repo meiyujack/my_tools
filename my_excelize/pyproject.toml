@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "my-excelize"
+version = "0.1.0"
+description = ""
+authors = ["meiyujack <meiyujack@msn.cn>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+APIFlask = "^2.0.2"
+python-dotenv = "^1.0.0"
+openpyxl = "^3.1.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
