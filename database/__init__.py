@@ -118,8 +118,14 @@ class Database:
 
     def just_exe(self, sql):
         try:
-            with self.conn.execute(sql) as cursor:
-                return cursor.fetchall()
+            if self.server == sqlite3:
+                with self.conn.execute(sql) as cursor:
+                    return cursor.fetchall()
+            else:
+                with self.conn:
+                    with self.conn.cursor() as cursor:
+                        cursor.execute(sql)
+                        return cursor.fetchall()
         except self.server.Error as ex:
             return f"Error:{ex}"
 
