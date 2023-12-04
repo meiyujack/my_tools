@@ -54,6 +54,7 @@ async def insert(self, table, data):
         sql = f"INSERT INTO {table}({keys}) VALUES({values});"
         if await self.conn.execute(sql, tuple(data.values())):
             await self.conn.commit()
+            return 0
     except self.server.Error as ex:
         await self.conn.rollback()
         return f"Error:{ex}"
