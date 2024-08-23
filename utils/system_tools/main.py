@@ -13,7 +13,7 @@ def walk_file(path, **condition):
             if condition.get('ext'):
                 _ = []
                 for file in files:
-                    if file.split('.')[1] == condition['ext']:
+                    if file.rsplit('.',1)[1] == condition['ext']:
                         _.append(os.path.join(root, file))
                 return _
             if condition.get('pattern'):
