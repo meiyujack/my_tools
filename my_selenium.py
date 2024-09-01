@@ -25,6 +25,7 @@ def start_chrome(headless=False):
     chrome_options.add_argument("--ignore-certificate-errors")
     chrome_options.add_argument("--ignore-ssl-error")
     chrome_options.add_argument("--ignore-net-error")
+    chrome_options.add_argument('--log-level=1')
     chrome = webdriver.Chrome(options=chrome_options)
     return chrome
 
