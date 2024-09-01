@@ -23,8 +23,8 @@ def start_chrome(headless=False):
     chrome_options.add_argument("--window-size=1920x1080")
     chrome_options.add_argument("--disable-features=VizDisplayCompositor")
     chrome_options.add_argument("--ignore-certificate-errors")
-    chrome_options.add_argument("--ignore-ssl-errors")
-    chrome_options.add_argument("--ignore-net-errors")
+    chrome_options.add_argument("--ignore-ssl-error")
+    chrome_options.add_argument("--ignore-net-error")
     chrome = webdriver.Chrome(options=chrome_options)
     return chrome
 
