@@ -7,22 +7,24 @@ class Database:
         """
         Initialize basic information about current database.
         @param server: database name, like mariadb, sqlite, etc.
-        @param kwargs: key=value. if sqlite, file_address, and sql_address in case want to reconstruct table;
+        @param kwargs: key=value. if sqlite, file, and sql in case want to reconstruct table;
         if mariadb, host={host}, user={user}, etc.
         """
         self.server = server
         self.basic = kwargs
-        self.conn = None
+        self.conn=self._conn
 
-    def connect_db(self):
+
+    @property
+    def _conn(self):
         """
         Connect to the database.
         """
         try:
             if self.server == sqlite3:
-                self.conn = self.server.connect(self.basic['file_address'])
+                return self.server.connect(self.basic['file'])
             else:
-                self.conn = self.server.connect(
+                return self.server.connect(
                     user=self.basic['user'],
                     password=self.basic['password'],
                     host=self.basic['host'],
@@ -35,10 +37,9 @@ class Database:
         """
         Initialize table schema structure.
         """
-        with open(self.basic["sql_address"], mode="r") as file:
-            self.conn.cursor().executescript(file.read())
-            self.conn.commit()
-            print("Initialize database completed.")
+        self.conn.cursor().executescript(self.basic['sql'])
+        self.conn.commit()
+        print("Initialize database completed.")
 
     def select_db(self, table, get='*', prep=None, **condition):
         """
@@ -57,14 +58,12 @@ class Database:
                     sql += where
                 else:
                     where = f' {prep} '.join([
-                        f"{''.join(m.keys())}={''.join(['?'])}" for m in [{
-                            i: j
-                        } for i, j in condition.items()]
+                        f"{''.join(m.keys())}={''.join(['?'])}" for m in [{i: j} for i, j in condition.items()]
                     ])
                     sql += ' WHERE ' + where
             if self.server == sqlite3:
-                cursor = self.conn.execute(sql, tuple(condition.values()))
-                rows = cursor.fetchall()
+                cur=self.conn.cursor()
+                rows = cur.execute(sql, tuple(condition.values())).fetchall()
             else:
                 with self.conn:
                     with self.conn.cursor() as cursor:
@@ -76,20 +75,31 @@ class Database:
             self.conn.rollback()
             return f"Error: {e}"
 
-    def insert(self, table, data):
-        self.connect_db()
-        keys = ','.join(data.keys())
-        values = ','.join(['?'] * len(data))
-        try:
-            sql = f"INSERT INTO {table}({keys}) VALUES({values});"
-            if self.conn.execute(sql, tuple(data.values())):
-                self.conn.commit()
-        except self.server.Error as ex:
-            self.conn.rollback()
-            return f"Error:{ex}"
+    def insert(self, table, value:list,data:dict=None):
+        if value:
+            values=','.join(['?'] * len(value))
+            sql=f"INSERT INTO {table} VALUES({values});"
+            try:
+                cur=self.conn.cursor()
+                if cur.execute(sql, tuple(a for a in value)):
+                    self.conn.commit()
+                    return
+            except self.server.Error as ex:
+                self.conn.rollback()
+                return f"Error:{ex}"
+        if data:
+            keys = ','.join(data.keys())
+            values = ','.join(['?'] * len(data))
+            try:
+                sql = f"INSERT INTO {table}({keys}) VALUES({values});"
+                cur=self.conn.cursor()
+                if cur.execute(sql, tuple(data.values())):
+                    self.conn.commit()
+            except self.server.Error as ex:
+                self.conn.rollback()
+                return f"Error:{ex}"
 
     def update(self, table, data, **condition):
-        self.connect_db()
         s = ""
         for k, v in data.items():
             s += f"{k}='{v}',"
@@ -97,20 +107,21 @@ class Database:
         sql = f"UPDATE {table} SET {s}"
         where = f" WHERE {','.join(condition.keys())}={','.join(['?'])};"
         sql += where
+        cur=self.conn.cursor()
         try:
-            if self.conn.execute(sql, tuple(condition.values())):
+            if cur.execute(sql, tuple(condition.values())):
                 self.conn.commit()
         except self.server.Error as ex:
             self.conn.rollback()
             return f"Error:{ex}"
 
     def delete(self, table, **condition):
-        self.connect_db()
         sql = f"DELETE FROM {table}"
         where = f" WHERE {','.join(condition.keys())}={','.join(['?'])};"
         sql += where
+        cur=self.conn.cursor()
         try:
-            if self.conn.execute(sql, tuple(condition.values())):
+            if cur.execute(sql, tuple(condition.values())):
                 self.conn.commit()
         except self.server.Error as ex:
             self.conn.rollback()
