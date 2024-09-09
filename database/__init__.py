@@ -41,6 +41,11 @@ class Database:
         self.conn.commit()
         print("Initialize database completed.")
 
+    def get_columns(self,table_name):
+        cur=self.conn.cursor()
+        return [c[0] for c in cur.execute(f"select name from pragma_table_info('{table_name}');").fetchall()]
+
+
     def select_db(self, table, get='*', prep=None, **condition):
         """
         Just execute "select" sentence.
@@ -139,6 +144,9 @@ class Database:
                         return cursor.fetchall()
         except self.server.Error as ex:
             return f"Error:{ex}"
+        
+    def __repr__(self) -> str:
+        return f"Database({self.server,self.basic})"
 
     # def upsert(self, table, data, constraint: int = None):
     #     """
