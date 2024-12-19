@@ -107,3 +107,13 @@ def slice_reverse(l, i):
         if n >= i:
             l[n] = t[n - i]
     return l
+
+
+def get_assert_id():
+    probably=str(random.random())[2:]+str(random.random())[2:9]
+    if probably[0]!='0':
+            return int(probably)
+    else:
+        while probably[0]=='0':
+            probably=get_assert_id()
+            return int(probably)
