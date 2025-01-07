@@ -1,3 +1,5 @@
+import uuid,random
+
 from . import hashlib, random, json
 from . import Image
 
@@ -117,3 +119,13 @@ def get_assert_id():
         while probably[0]=='0':
             probably=get_assert_id()
             return int(probably)
+
+
+def generate_rfid():
+    answer=''
+    uid=str(uuid.uuid4())
+    while len(answer)!=18:
+        r=random.choice(uid)
+        if r.isdigit()==True and r!='0':
+            answer+=r
+    return answer
