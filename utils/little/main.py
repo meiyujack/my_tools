@@ -110,21 +110,10 @@ def slice_reverse(l, i):
             l[n] = t[n - i]
     return l
 
-
-def get_assert_id():
-    probably=str(random.random())[2:]+str(random.random())[2:9]
-    if probably[0]!='0':
-            return int(probably)
-    else:
-        while probably[0]=='0':
-            probably=get_assert_id()
-            return int(probably)
-
-
-def generate_rfid():
+def generate_unique(num:int):
     answer=''
     uid=str(uuid.uuid4())
-    while len(answer)!=18:
+    while len(answer)!=num:
         r=random.choice(uid)
         if r.isdigit()==True and r!='0':
             answer+=r
