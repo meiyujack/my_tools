@@ -1,3 +1,5 @@
+# You need Python 3.10+ to use generate_unique method.
+
 import uuid,random
 
 from . import hashlib, random, json
@@ -111,10 +113,20 @@ def slice_reverse(l, i):
     return l
 
 def generate_unique(num:int):
-    answer=''
-    uid=str(uuid.uuid4())
-    while len(answer)!=num:
-        r=random.choice(uid)
-        if r.isdigit()==True and r!='0':
-            answer+=r
-    return answer
+    answer = ''
+        uid = str(uuid.uuid4())
+        while len(answer) != num:
+            r = random.choice(uid)
+            match type:
+                case "混合":
+                    if r.isalnum():
+                        answer += r
+            match type:
+                case "数字":
+                    if r.isdigit():
+                        answer += r
+            match type:
+                case "字母":
+                    if r.isalpha():
+                        answer += r
+        return answer
