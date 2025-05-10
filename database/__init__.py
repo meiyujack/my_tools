@@ -7,7 +7,7 @@ class Database:
         """
         Initialize basic information about current database.
         @param server: database name, like mariadb, sqlite, etc.
-        @param kwargs: key=value. if sqlite, file, and sql in case want to reconstruct table;
+        @param kwargs: key=value. if sqlite, file,
         if mariadb, host={host}, user={user}, etc.
         """
         self.server = server
@@ -33,17 +33,18 @@ class Database:
         except self.server.Error as e:
             return e
 
-    def init_table(self):
+    def init_table(self,sql):
         """
         Initialize table schema structure.
         """
-        self.conn.cursor().executescript(self.basic['sql'])
+        self.conn.cursor().execute(sql)
         self.conn.commit()
         print("Initialize database completed.")
 
     def get_columns(self,table_name):
-        cur=self.conn.cursor()
-        return [c[0] for c in cur.execute(f"select name from pragma_table_info('{table_name}');").fetchall()]
+        if self.server == sqlite3:
+            cur=self.conn.cursor()
+            return [c[0] for c in cur.execute(f"select name from pragma_table_info('{table_name}');").fetchall()]
 
 
     def select_db(self, table, get='*', prep=None, **condition):
@@ -70,39 +71,29 @@ class Database:
                 cur=self.conn.cursor()
                 rows = cur.execute(sql, tuple(condition.values())).fetchall()
             else:
-                with self.conn:
-                    with self.conn.cursor() as cursor:
-                        cursor.execute(sql, tuple(condition.values()))
-                        rows = cursor.fetchall()
+                with self._conn as conn:
+                    cur=conn.cursor()
+                    cur.execute(sql, tuple(condition.values()))
+                    rows = cur.fetchall()
             if rows:
                 return rows
         except self.server.Error as e:
             self.conn.rollback()
             return f"Error: {e}"
 
-    def insert(self, table, value:list,data:dict=None):
-        if value:
-            values=','.join(['?'] * len(value))
-            sql=f"INSERT INTO {table} VALUES({values});"
-            try:
-                cur=self.conn.cursor()
-                if cur.execute(sql, tuple(a for a in value)):
-                    self.conn.commit()
-                    return
-            except self.server.Error as ex:
-                self.conn.rollback()
-                return f"Error:{ex}"
+    def insert(self, table, data:dict=None):
         if data:
             keys = ','.join(data.keys())
             values = ','.join(['?'] * len(data))
             try:
                 sql = f"INSERT INTO {table}({keys}) VALUES({values});"
-                cur=self.conn.cursor()
-                if cur.execute(sql, tuple(data.values())):
-                    self.conn.commit()
-            except self.server.Error as ex:
-                self.conn.rollback()
-                return f"Error:{ex}"
+                with self._conn as conn:
+                    cur=conn.cursor()
+                    cur.execute(sql, tuple(data.values())):
+                    conn.commit()
+            except self.server.Error as e:
+                conn.rollback()
+                return f"Error:{e}"
 
     def update(self, table, data, **condition):
         s = ""
