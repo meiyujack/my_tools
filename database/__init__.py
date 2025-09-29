@@ -12,27 +12,24 @@ class Database:
         """
         self.server = server
         self.basic = kwargs
-        self.conn=self._conn
+        self._conn = None
 
 
     @property
-    def _conn(self):
+    def conn(self):
         """
         Connect to the database.
         """
+        if not self._conn:
+            self._conn=self._get_conn()
+        return self._conn
+
+    def _get_conn(self):
         try:
-            if self.server == sqlite3:
-                return self.server.connect(self.basic['file'])
-            else:
-                return self.server.connect(
-                    user=self.basic['user'],
-                    password=self.basic['password'],
-                    host=self.basic['host'],
-                    port=self.basic['port'],
-                    database=self.basic['database'])
+            return self.server.connect(self.basic['file']) if self.server==sqlite3 else self.server.connect(user=self.basic['user'],password=self.basic['password'],host=self.basic['host'],port=self.basic['port'],database=self.basic['database'])
         except self.server.Error as e:
             return e
-
+    
     def init_table(self,sql):
         """
         Initialize table schema structure.
@@ -162,3 +159,4 @@ class Database:
     #     except self.server.Error as e:
     #         self.conn.rollback()
     #         return f"Error: {e}"
+
